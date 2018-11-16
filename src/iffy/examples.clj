@@ -3,16 +3,16 @@
 
 (defclass Stack []
   {:init (fn []
+           ;; this is a vector as specified in gen-class/init
            [[] (atom {:stack ()})])
    
    :push (fn [x]
-           (swap! (.state this) update :stack conj x))
+           (oswap this :stack conj x))
 
    :pop (fn []
-          (let [state (.state this)
-                x (-> @state :stack first)]
-           (swap! state update :stack rest)
-           x))
+          (let [x (first (oget this :stack))]
+            (oswap this :stack rest)
+            x))
 
    :peek (fn []
-           (first @(.state this)))})
+           (first (oget this :stack)))})
