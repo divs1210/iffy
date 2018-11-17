@@ -2,38 +2,38 @@
   (:require [iffy.core :refer :all]))
 
 (defclass Stack []
-  {:push (meth [x]
-           (.swap this :stack #(conj % x)))
+  (meth push [x]
+    (.swap this :stack #(conj % x)))
 
-   :pop (meth []
-          (let [x (first (:stack this))]
-            (.swap this :stack rest)
-            x))
+  (meth pop []
+    (let [x (first (:stack this))]
+      (.swap this :stack rest)
+      x))
 
-   :peek (meth []
-           (first (:stack this)))})
+  (meth peek []
+    (first (:stack this))))
 
 
 (defclass DurableStack [iffy.examples.Stack]
-  {:setFile (meth [f]
-              (.set this :f f))
+  (meth setFile [f]
+    (.set this :f f))
 
-   :save (meth []
-           (spit (:f this)
-                 (pr-str @state)))
+  (meth save []
+    (spit (:f this)
+          (pr-str @state)))
 
-   :load (meth []
-           (reset! state
-                   (read-string (slurp (:f this)))))})
+  (meth load []
+    (reset! state
+            (read-string (slurp (:f this))))))
 
 
 (defclass StrangeLoop [clojure.lang.AFn]
-  {:invoke (over [x]
-             (reverse x))})
+  (over invoke [x]
+    (reverse x)))
 
 
 (defclass SmartList [java.util.ArrayList]
-  {:supers [[] [int]]
+  (ctors [[] [int]])
 
-   :get (over [idx]
-          (.superGet this (mod idx (.size this))))})
+  (over get [idx]
+    (.superGet this (mod idx (.size this)))))

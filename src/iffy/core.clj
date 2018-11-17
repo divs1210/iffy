@@ -2,6 +2,11 @@
 
 ;; bootstrap
 ;; =========
+(defn ctors
+  "Like `fn`, but used to expose Java super constructors"
+  [arg-signatures]
+  (throw (Exception. "ctors used outside defclass!")))
+
 (defn meth
   "Like `fn`, but used to define Java methods"
   [argv & body]
@@ -34,11 +39,23 @@
   "Creates a Java class
   cname - class name
   extends-and-implements - vector of the form [Class Interface1 Interface2]
-  methods - a map of the form {:name (fn [x] (oswap this :val + x))}"
-  [cname extends-and-implements methods]
+  methods - should have one of following forms:
+    * (ctors [[] [String] [int]])
+    * (meth methName [x y] ...)
+    * (over methName [] (.superMethName this) ...)"
+  [cname extends-and-implements & methods]
   (let [extends-and-implements (map eval (concat extends-and-implements
                                                  ['iffy.core.IObj
                                                   'clojure.lang.ILookup]))
+        methods (->> (map (fn [[m-type & m-body]]
+                            (if (= 'ctors m-type)
+                              [:supers (first m-body)]
+                              (let [[name argv & body] m-body]
+                                [(keyword name) (concat (list m-type argv)
+                                                        body)])))
+                          methods)
+                     vec
+                     (into {}))
         supers (or (:supers methods) [[]])
         methods (dissoc methods :supers)]
     `(do
