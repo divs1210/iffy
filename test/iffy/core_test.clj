@@ -59,7 +59,7 @@
 
 
 (deftest SmartList-tests
-  (let [l (doto (SmartList.)
+  (let [l (doto (SmartList. 5)
             (.addAll (range 10)))]
 
     (is (= 3 (.get l 3))

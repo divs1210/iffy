@@ -33,5 +33,8 @@
 
 
 (defclass SmartList [java.util.ArrayList]
-  {:get (over [idx]
+  {:init (ctor [initialCapacity]
+           (super initialCapacity))
+
+   :get (over [idx]
           (.superGet this (mod idx (.size this))))})
