@@ -40,4 +40,6 @@
 
   (meth map [f]
     (dotimes [i (.size this)]
-      (.set this i (f (.get this i))))))
+      (let [curr-val (.get this i)
+            new-val (f curr-val)]
+        (.set this i new-val)))))
