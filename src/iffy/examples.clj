@@ -2,34 +2,35 @@
   (:require [iffy.core :refer :all]))
 
 (defclass Stack []
-  {:init (fn []
-           ;; this is a vector as specified in gen-class/init
-           [[] (atom {})])
-   
-   :push (fn [x]
+  {:push (meth [x]
            (.swap this :stack #(conj % x)))
 
-   :pop (fn []
+   :pop (meth []
           (let [x (first (.get this :stack))]
             (.swap this :stack rest)
             x))
 
-   :peek (fn []
+   :peek (meth []
            (first (.get this :stack)))})
 
 
 (defclass DurableStack [iffy.examples.Stack]
-  {:init (fn []
-           [[] (atom {})])
-
-   :setFile (fn [f]
+  {:setFile (meth [f]
               (.set this :f f))
 
-   :save (fn []
+   :save (meth []
            (spit (@state :f) (pr-str (dissoc @state :f))))
 
-   :load (fn []
+   :load (meth []
            (let [f (@state :f)]
              (reset! state
                      (assoc (read-string (slurp f))
                             :f f))))})
+
+
+(defclass StrangeLoop [clojure.lang.AFn]
+  {:setFn (meth [f]
+            (.set this :f f))
+   
+   :invoke (over [x]
+             ((.get this :f) x))})

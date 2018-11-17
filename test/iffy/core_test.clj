@@ -1,10 +1,11 @@
 (ns iffy.core-test
   (:require [clojure.java.io :as f]
             [clojure.test :refer :all])
-  (:import [iffy.examples DurableStack Stack]))
+  (:import [iffy.examples DurableStack Stack StrangeLoop]))
 
 (deftest Stack-tests
   (let [s (Stack.)]
+
     (is (empty? (.get s :stack))
         "fresh stack is empty")
 
@@ -47,3 +48,12 @@
           ".save and .load work as expected")
 
       (f/delete-file f))))
+
+
+(deftest StrangeLoop-tests
+  (let [f (doto (StrangeLoop.)
+            (.setFn reverse))]
+
+    (is (= (reverse "Hello")
+           (f "Hello"))
+        "StrangeLoop extends AFn, and is thus a Clojure function")))
