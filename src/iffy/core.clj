@@ -19,8 +19,8 @@
   (throw (Exception. "meth used outside defclass!")))
 
 (def IObj-methods
-  '{:get (meth [key]
-           (get @state key))
+  '{:valAt (over [key]
+             (get @state key nil))
 
     :set (meth [key val]
            (swap! state assoc key val))
@@ -37,7 +37,8 @@
   extends-and-implements - vector of the form [Class Interface1 Interface2]
   methods - a map of the form {:name (fn [x] (oswap this :val + x))}"
   [cname extends-and-implements methods]
-  (let [extends-and-implements (map eval (concat extends-and-implements ['iffy.core.IObj]))
+  (let [extends-and-implements (map eval (concat extends-and-implements ['iffy.core.IObj
+                                                                         'clojure.lang.ILookup]))
         super-ctor-args (->> methods :super vec)]
     `(do
        (gen-class

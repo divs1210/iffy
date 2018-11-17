@@ -6,23 +6,23 @@
 (deftest Stack-tests
   (let [s (Stack.)]
 
-    (is (empty? (.get s :stack))
+    (is (empty? (:stack s))
         "fresh stack is empty")
 
     (testing "push"
       (.push s 1)
-      (is (= [1] (.get s :stack))
+      (is (= [1] (:stack s))
           ".push puts x on stack")
 
       (.push s 2)
-      (is (= [2 1] (.get s :stack))
+      (is (= [2 1] (:stack s))
           ".push puts new item on top"))
 
     (testing "pop"
       (is (= 2 (.pop s))
           ".pop returns item on top")
 
-      (is (= [1] (.get s :stack))
+      (is (= [1] (:stack s))
           ".pop removes item on top"))))
 
 
@@ -37,14 +37,14 @@
       (doseq [x (take 10 (shuffle (range 100)))]
         (.push s x))
 
-      (is (= 10 (count (.get s :stack)))
+      (is (= 10 (count (:stack s)))
           "superclass works as expected"))
 
     (testing "persistence"
       (.save s)
       (.load z)
-      (is (= (.get s :stack)
-             (.get z :stack))
+      (is (= (:stack s)
+             (:stack z))
           ".save and .load work as expected")
 
       (f/delete-file f))))

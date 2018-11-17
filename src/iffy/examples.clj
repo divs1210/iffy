@@ -6,12 +6,12 @@
            (.swap this :stack #(conj % x)))
 
    :pop (meth []
-          (let [x (first (.get this :stack))]
+          (let [x (first (:stack this))]
             (.swap this :stack rest)
             x))
 
    :peek (meth []
-           (first (.get this :stack)))})
+           (first (:stack this)))})
 
 
 (defclass DurableStack [iffy.examples.Stack]
@@ -19,10 +19,10 @@
               (.set this :f f))
 
    :save (meth []
-           (spit (@state :f) (pr-str (dissoc @state :f))))
+           (spit (:f this) (pr-str (dissoc @state :f))))
 
    :load (meth []
-           (let [f (@state :f)]
+           (let [f (:f this)]
              (reset! state
                      (assoc (read-string (slurp f))
                             :f f))))})
@@ -33,4 +33,4 @@
             (.set this :f f))
    
    :invoke (over [x]
-             ((.get this :f) x))})
+             ((:f this) x))})
