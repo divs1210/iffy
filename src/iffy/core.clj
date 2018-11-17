@@ -3,18 +3,18 @@
 ;; bootstrap
 ;; =========
 (defn ctors
-  "Like `fn`, but used to expose Java super constructors"
+  "Used to expose Java super constructors for derived class"
   [arg-signatures]
   (throw (Exception. "ctors used outside defclass!")))
 
 (defn meth
-  "Like `fn`, but used to define Java methods"
-  [argv & body]
+  "Like `defn`, but used to define Java methods"
+  [name argv & body]
   (throw (Exception. "meth used outside defclass!")))
 
 (defn over
-  "Like `fn`, but used to override Java methods"
-  [argv & body]
+  "Like `defn`, but used to override Java methods"
+  [name argv & body]
   (throw (Exception. "over used outside defclass!")))
 
 (gen-interface
@@ -38,7 +38,9 @@
 (defmacro defclass
   "Creates a Java class
   cname - class name
-  extends-and-implements - vector of the form [Class Interface1 Interface2]
+  extends-and-implements - vector of the form
+    * [Class Interface1 Interface2 ...], or
+    * [Interface1 Interface2 ...]
   methods - should have one of following forms:
     * (ctors [[] [String] [int]])
     * (meth methName [x y] ...)
