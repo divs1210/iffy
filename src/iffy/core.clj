@@ -19,15 +19,11 @@
 
 (gen-interface
  :name iffy.core.IObj
- :methods [[set [clojure.lang.Keyword Object] Object]
-           [swap [clojure.lang.Keyword clojure.lang.IFn] Object]])
+ :methods [[swap [clojure.lang.Keyword clojure.lang.IFn] Object]])
 
 (def default-methods
   '{:valAt (over [key]
              (get @state key nil))
-
-    :set (over [key val]
-           (swap! state assoc key val))
 
     :swap (over [key f]
             (swap! state update key f))})

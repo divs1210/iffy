@@ -71,4 +71,9 @@
         "works correctly for normal indexes")
 
     (is (= 8 (.get l1 -2))
-        "works correctly for negative indexes")))
+        "works correctly for negative indexes")
+
+    (.map l1 #(* % 2))
+    (is (= (map #(* % 2) (range 10))
+           l1)
+        "additional method works")))

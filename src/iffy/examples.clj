@@ -16,7 +16,7 @@
 
 (defclass DurableStack [iffy.examples.Stack]
   (meth setFile [f]
-    (.set this :f f))
+    (.swap state assoc :f f))
 
   (meth save []
     (spit (:f this)
@@ -36,4 +36,8 @@
   (ctors [[] [int]])
 
   (over get [idx]
-    (.superGet this (mod idx (.size this)))))
+    (.superGet this (mod idx (.size this))))
+
+  (meth map [f]
+    (dotimes [i (.size this)]
+      (.set this i (f (.get this i))))))
