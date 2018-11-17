@@ -3,11 +3,11 @@
 
 (defclass Stack []
   (meth push [x]
-    (.swap this :stack #(cons x %)))
+    (.update this :stack #(cons x %)))
 
   (meth pop []
     (let [x (first (:stack this))]
-      (.swap this :stack rest)
+      (.update this :stack rest)
       x))
 
   (meth peek []
@@ -15,16 +15,16 @@
 
 
 (defclass DurableStack [iffy.examples.Stack]
-  (meth setFile [f]
-    (.swap state assoc :f f))
+  (meth setFile [file]
+    (.reset this :file file))
 
   (meth save []
-    (spit (:f this)
+    (spit (:file this)
           (pr-str @state)))
 
   (meth load []
     (reset! state
-            (read-string (slurp (:f this))))))
+            (read-string (slurp (:file this))))))
 
 
 (defclass StrangeLoop [clojure.lang.AFn]

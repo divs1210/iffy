@@ -19,14 +19,18 @@
 
 (gen-interface
  :name iffy.core.IObj
- :methods [[swap [clojure.lang.Keyword clojure.lang.IFn] Object]])
+ :methods [[update [clojure.lang.Keyword clojure.lang.IFn] Object]
+           [reset [clojure.lang.Keyword Object] Object]])
 
 (def default-methods
   '{:valAt (over [key]
              (get @state key nil))
 
-    :swap (over [key f]
-            (swap! state update key f))})
+    :update (over [key f]
+              (swap! state update key f))
+
+    :reset (over [key val]
+             (swap! state assoc key val))})
 
 
 ;; cream
