@@ -7,12 +7,12 @@
            [[] (atom {:stack ()})])
    
    :push (fn [x]
-           (oswap this :stack conj x))
+           (.swap this :stack #(conj % x)))
 
    :pop (fn []
-          (let [x (first (oget this :stack))]
-            (oswap this :stack rest)
+          (let [x (first (.get this :stack))]
+            (.swap this :stack rest)
             x))
 
    :peek (fn []
-           (first (oget this :stack)))})
+           (first (.get this :stack)))})

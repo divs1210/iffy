@@ -1,57 +1,72 @@
 (ns iffy.core)
 
-;; macro to create class
-;; =====================
+;; bootstrap
+;; =========
+(gen-interface
+ :name iffy.core.IObj
+ :methods [[get [clojure.lang.Keyword] Object]
+           [set [clojure.lang.Keyword Object] void]
+           [swap [clojure.lang.Keyword clojure.lang.IFn] Object]])
+
+(def IObj-methods
+  '{:get (fn [key]
+           (get @state key))
+
+    :set (fn [key val]
+           (swap! state assoc key val))
+
+    :swap (fn [key f]
+            (swap! state update key f))})
+
+
+;; cream
+;; =====
 (defmacro defclass
   "Creates a Java class
   cname - class name
   extends-and-implements - vector of the form [Class Interface1 Interface2]
   methods - a map of the form {:name (fn [x] (oswap this :val + x))}"
   [cname extends-and-implements methods]
-  `(do
-     (gen-class
-      :name
-      ~(symbol (munge (str *ns* "." cname)))
+  (let [extends-and-implements (concat extends-and-implements ['iffy.core.IObj])]
+    `(do
+       (gen-class
+        :name
+        ~(symbol (munge (str *ns* "." cname)))
 
-      :extends
-      ~(let [class-or-interface (first extends-and-implements)]
-         (if (class? class-or-interface)
-           class-or-interface
-           'java.lang.Object))
-      
-      :implements
-      ~(vec (let [class-or-interface (first extends-and-implements)]
-              (if (class? class-or-interface)
-                (rest extends-and-implements)
-                extends-and-implements)))
+        :extends
+        ~(let [class-or-interface (eval (first extends-and-implements))]
+           (if (.isInterface class-or-interface)
+             Object
+             class-or-interface))
 
-      :init
-      ~'init
+        :implements
+        ~(vec (let [class-or-interface (first (map eval extends-and-implements))]
+                (if (.isInterface class-or-interface)
+                  extends-and-implements
+                  (rest extends-and-implements))))
 
-      :state
-      ~'state
+        :init
+        ~'init
 
-      :prefix
-      ~(str cname "-")
-      
-      :methods
-      ~(vec (for [mname (-> methods (dissoc :init) keys)]
-              [(symbol (name mname)) ['java.util.Map] 'Object])))
+        :state
+        ~'state
 
-     (def ~(symbol (str cname "-init"))
-       ~(:init methods))
+        :prefix
+        ~(str cname "-")
 
-     ~@(for [[m-name [_ m-args & m-body]] (dissoc methods :init)]
-         `(defn ~(symbol (str cname "-" (name m-name)))
-            [~'this {:keys ~m-args}]
-            (let [~'state (.state ~'this)]
-              ~@m-body)))))
+        :methods
+        ~(vec (for [[m-name [_ m-args & _]] (dissoc methods :init)]
+                [(symbol (name m-name))
+                 (vec (repeat (count m-args) 'Object))
+                 'Object])))
 
+       (def ~(symbol (str cname "-init"))
+         ~(:init methods))
 
-;; utils
-;; =====
-(defn oget [obj key]
-  (-> obj .state deref key))
-
-(defn oswap [this key f & args]
-  (swap! (.state this) update key #(apply f % args)))
+       ~@(for [[m-name [_ m-args & m-body]] (-> methods
+                                                (dissoc :init)
+                                                (merge IObj-methods))]
+           `(defn ~(symbol (str cname "-" (name m-name)))
+              [~'this ~@m-args]
+              (let [~'state (.state ~'this)]
+                ~@m-body))))))
