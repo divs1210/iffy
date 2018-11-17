@@ -2,12 +2,6 @@
 
 ;; bootstrap
 ;; =========
-(gen-interface
- :name iffy.core.IObj
- :methods [[get [clojure.lang.Keyword] Object]
-           [set [clojure.lang.Keyword Object] void]
-           [swap [clojure.lang.Keyword clojure.lang.IFn] Object]])
-
 (defn meth
   "Like `fn`, but used to define Java methods"
   [argv & body]
@@ -16,16 +10,21 @@
 (defn over
   "Like `fn`, but used to override Java methods"
   [argv & body]
-  (throw (Exception. "meth used outside defclass!")))
+  (throw (Exception. "over used outside defclass!")))
 
-(def IObj-methods
+(gen-interface
+ :name iffy.core.IObj
+ :methods [[set [clojure.lang.Keyword Object] Object]
+           [swap [clojure.lang.Keyword clojure.lang.IFn] Object]])
+
+(def default-methods
   '{:valAt (over [key]
              (get @state key nil))
 
-    :set (meth [key val]
+    :set (over [key val]
            (swap! state assoc key val))
 
-    :swap (meth [key f]
+    :swap (over [key f]
             (swap! state update key f))})
 
 
@@ -37,8 +36,9 @@
   extends-and-implements - vector of the form [Class Interface1 Interface2]
   methods - a map of the form {:name (fn [x] (oswap this :val + x))}"
   [cname extends-and-implements methods]
-  (let [extends-and-implements (map eval (concat extends-and-implements ['iffy.core.IObj
-                                                                         'clojure.lang.ILookup]))]
+  (let [extends-and-implements (map eval (concat extends-and-implements
+                                                 ['iffy.core.IObj
+                                                  'clojure.lang.ILookup]))]
     `(do
        (gen-class
         :name
@@ -86,7 +86,7 @@
        (defn ~(symbol (str cname "-super-call")) []
          [[] (atom {})])
 
-       ~@(for [[m-name [_ m-args & m-body]] (merge IObj-methods methods)]
+       ~@(for [[m-name [_ m-args & m-body]] (merge default-methods methods)]
            `(defn ~(symbol (str cname "-" (name m-name)))
               [~'this ~@m-args]
               (let [~'state (.state ~'this)]
