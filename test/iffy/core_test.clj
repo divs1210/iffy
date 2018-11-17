@@ -51,8 +51,7 @@
 
 
 (deftest StrangeLoop-tests
-  (let [f (doto (StrangeLoop.)
-            (.setFn reverse))]
+  (let [f (StrangeLoop.)]
 
     (is (= (reverse "Hello")
            (f "Hello"))

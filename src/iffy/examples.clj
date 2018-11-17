@@ -19,18 +19,14 @@
               (.set this :f f))
 
    :save (meth []
-           (spit (:f this) (pr-str (dissoc @state :f))))
+           (spit (:f this)
+                 (pr-str @state)))
 
    :load (meth []
-           (let [f (:f this)]
-             (reset! state
-                     (assoc (read-string (slurp f))
-                            :f f))))})
+           (reset! state
+                   (read-string (slurp (:f this)))))})
 
 
 (defclass StrangeLoop [clojure.lang.AFn]
-  {:setFn (meth [f]
-            (.set this :f f))
-   
-   :invoke (over [x]
-             ((:f this) x))})
+  {:invoke (over [x]
+             (reverse x))})
