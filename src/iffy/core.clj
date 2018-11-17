@@ -2,11 +2,6 @@
 
 ;; bootstrap
 ;; =========
-(defn ctor
-  "Like `fn`, but used to define Java constructors"
-  [argv super-call]
-  (throw (Exception. "ctor used outside defclass!")))
-
 (defn meth
   "Like `fn`, but used to define Java methods"
   [argv & body]
@@ -44,10 +39,8 @@
   (let [extends-and-implements (map eval (concat extends-and-implements
                                                  ['iffy.core.IObj
                                                   'clojure.lang.ILookup]))
-        init (or (:init methods)
-                 '(ctor []
-                    (super)))
-        methods (dissoc methods :init)]
+        supers (or (:supers methods) [[]])
+        methods (dissoc methods :supers)]
     `(do
        (gen-class
         :name
@@ -67,6 +60,13 @@
 
         :init
         ~'super-call
+
+        :constructors
+        ~(->> (for [types supers
+                    :let [types (vec types)]]
+                [types types])
+              vec
+              (into {}))
 
         :state
         ~'state
@@ -92,8 +92,11 @@
                  (vec (repeat (count m-args) 'Object))
                  'Object])))
 
-       (defn ~(symbol (str cname "-super-call")) ~(second init)
-         [[~@(-> init last rest)] (atom {})])
+       (defn ~(symbol (str cname "-super-call"))
+         ~@(for [types supers
+                 :let [names (vec (repeatedly (count types) gensym))]]
+             (list names
+                   [names '(atom {})])))
 
        ~@(for [[m-name [_ m-args & m-body]] (merge default-methods methods)]
            `(defn ~(symbol (str cname "-" (name m-name)))

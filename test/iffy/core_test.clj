@@ -28,23 +28,23 @@
 
 (deftest DurableStack-tests
   (let [f "DurableStack-test"
-        s (doto (DurableStack.)
+        s1 (doto (DurableStack.)
             (.setFile f))
-        z (doto (DurableStack.)
+        s2 (doto (DurableStack.)
             (.setFile f))]
 
     (testing "inheritence"
       (doseq [x (take 10 (shuffle (range 100)))]
-        (.push s x))
+        (.push s1 x))
 
-      (is (= 10 (count (:stack s)))
+      (is (= 10 (count (:stack s1)))
           "superclass works as expected"))
 
     (testing "persistence"
-      (.save s)
-      (.load z)
-      (is (= (:stack s)
-             (:stack z))
+      (.save s1)
+      (.load s2)
+      (is (= (:stack s1)
+             (:stack s2))
           ".save and .load work as expected")
 
       (f/delete-file f))))
@@ -59,11 +59,16 @@
 
 
 (deftest SmartList-tests
-  (let [l (doto (SmartList. 5)
-            (.addAll (range 10)))]
+  (let [l1 (doto (SmartList.)
+             (.addAll (range 10)))
+        l2 (doto (SmartList. 5)
+             (.addAll (range 10)))]
 
-    (is (= 3 (.get l 3))
+    (is (= l1 l2)
+        "both constructors work")
+
+    (is (= 3 (.get l1 3))
         "works correctly for normal indexes")
 
-    (is (= 8 (.get l -2))
+    (is (= 8 (.get l1 -2))
         "works correctly for negative indexes")))
