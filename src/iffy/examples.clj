@@ -4,7 +4,7 @@
 (defclass Stack []
   {:init (fn []
            ;; this is a vector as specified in gen-class/init
-           [[] (atom {:stack ()})])
+           [[] (atom {})])
    
    :push (fn [x]
            (.swap this :stack #(conj % x)))
@@ -20,7 +20,7 @@
 
 (defclass DurableStack [iffy.examples.Stack]
   {:init (fn []
-           [[] (atom {:f nil})])
+           [[] (atom {})])
 
    :setFile (fn [f]
               (.set this :f f))
