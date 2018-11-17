@@ -16,3 +16,20 @@
 
    :peek (fn []
            (first (.get this :stack)))})
+
+
+(defclass DurableStack [iffy.examples.Stack]
+  {:init (fn []
+           [[] (atom {:f nil})])
+
+   :setFile (fn [f]
+              (.set this :f f))
+
+   :save (fn []
+           (spit (@state :f) (pr-str (dissoc @state :f))))
+
+   :load (fn []
+           (let [f (@state :f)]
+             (reset! state
+                     (assoc (read-string (slurp f))
+                            :f f))))})
