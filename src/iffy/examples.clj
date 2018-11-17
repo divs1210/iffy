@@ -3,7 +3,7 @@
 
 (defclass Stack []
   (meth push [x]
-    (.swap this :stack #(conj % x)))
+    (.swap this :stack #(cons x %)))
 
   (meth pop []
     (let [x (first (:stack this))]
