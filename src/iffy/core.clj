@@ -38,8 +38,7 @@
   methods - a map of the form {:name (fn [x] (oswap this :val + x))}"
   [cname extends-and-implements methods]
   (let [extends-and-implements (map eval (concat extends-and-implements ['iffy.core.IObj
-                                                                         'clojure.lang.ILookup]))
-        super-ctor-args (->> methods :super vec)]
+                                                                         'clojure.lang.ILookup]))]
     `(do
        (gen-class
         :name
@@ -66,19 +65,28 @@
         :prefix
         ~(str cname "-")
 
+        :exposes-methods
+        ~(->> (for [[m-name [m-type m-args & _]] methods
+                    :when (= 'over m-type)
+                    :let [m-name (name m-name)]]
+                [(symbol m-name)
+                 (symbol (str 'super
+                              (Character/toUpperCase (first m-name))
+                              (apply str (rest m-name))))])
+              vec
+              (into {}))
+
         :methods
-        ~(vec (for [[m-name [m-type m-args & _]] (dissoc methods :super)
+        ~(vec (for [[m-name [m-type m-args & _]] methods
                     :when (not= 'over m-type)]
                 [(symbol (name m-name))
                  (vec (repeat (count m-args) 'Object))
                  'Object])))
 
        (defn ~(symbol (str cname "-super-call")) []
-         [~super-ctor-args (atom {})])
+         [[] (atom {})])
 
-       ~@(for [[m-name [_ m-args & m-body]] (-> methods
-                                                (dissoc :super)
-                                                (merge IObj-methods))]
+       ~@(for [[m-name [_ m-args & m-body]] (merge IObj-methods methods)]
            `(defn ~(symbol (str cname "-" (name m-name)))
               [~'this ~@m-args]
               (let [~'state (.state ~'this)]

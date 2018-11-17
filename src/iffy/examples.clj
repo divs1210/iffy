@@ -30,3 +30,8 @@
 (defclass StrangeLoop [clojure.lang.AFn]
   {:invoke (over [x]
              (reverse x))})
+
+
+(defclass SmartList [java.util.ArrayList]
+  {:get (over [idx]
+          (.superGet this (mod idx (.size this))))})

@@ -1,7 +1,7 @@
 (ns iffy.core-test
   (:require [clojure.java.io :as f]
             [clojure.test :refer :all])
-  (:import [iffy.examples DurableStack Stack StrangeLoop]))
+  (:import [iffy.examples DurableStack SmartList Stack StrangeLoop]))
 
 (deftest Stack-tests
   (let [s (Stack.)]
@@ -56,3 +56,14 @@
     (is (= (reverse "Hello")
            (f "Hello"))
         "StrangeLoop extends AFn, and is thus a Clojure function")))
+
+
+(deftest SmartList-tests
+  (let [l (doto (SmartList.)
+            (.addAll (range 10)))]
+
+    (is (= 3 (.get l 3))
+        "works correctly for normal indexes")
+
+    (is (= 8 (.get l -2))
+        "works correctly for negative indexes")))
