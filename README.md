@@ -1,6 +1,6 @@
 # iffy
 
-WIP! An experimental Clojure lib to make writing Java classes in Clojure easier. 
+A Java-compatible Object System in Clojure
 
 ## Usage
 
