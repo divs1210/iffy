@@ -3,17 +3,24 @@
 ;; bootstrap
 ;; =========
 (defn ctors
-  "Used to expose Java super constructors for derived class"
+  "Used to expose Java super constructors for derived class."
   [arg-signatures]
   (throw (Exception. "ctors used outside defclass!")))
 
 (defn meth
-  "Like `defn`, but used to define Java methods"
+  "Like `defn`, but used to define Java methods.
+  Automatically introduces special bindings:
+  `this`  - the current object
+  `state` - alias for `this.state`, an atom with a hashmap, for storing mutable state"
   [name argv & body]
   (throw (Exception. "meth used outside defclass!")))
 
 (defn over
-  "Like `defn`, but used to override Java methods"
+  "Like `defn`, but used to override Java methods.
+  Automatically introduces special bindings:
+  `this`  - the current object
+  `state` - alias for `this.state`, an atom with a hashmap, for storing mutable state
+  `super<Name>` - where `<Name>` is `name` with the first letter capitalized"
   [name argv & body]
   (throw (Exception. "over used outside defclass!")))
 
